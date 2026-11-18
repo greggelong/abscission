@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abscission — a study in leaving · 一场关于离去的研究</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Noto+Serif+SC:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--wall:#eeece7;--plate:#f8f7f3;--ink:#121212;--faint:rgba(18,18,18,.5);--rule:rgba(18,18,18,.2)}
+:root[data-theme="dark"]{--wall:#0a0a0a;--plate:#000;--ink:#ecebe6;--faint:rgba(236,235,230,.5);--rule:rgba(236,235,230,.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--wall);color:var(--ink);font-family:'Cormorant Garamond','Noto Serif SC','Songti SC','STSong','Source Han Serif SC','SimSun','Iowan Old Style','Palatino Linotype',Georgia,serif;font-size:18px;line-height:1.35;-webkit-font-smoothing:antialiased}
+button{background:none;border:0;border-bottom:1px solid transparent;color:inherit;font:inherit;cursor:pointer;padding:0 0 1px;letter-spacing:.01em}
+button:hover,button:focus-visible{border-bottom-color:currentColor;outline:none}
+button:disabled{cursor:default;color:var(--faint);border-bottom-color:transparent}
+
+.zh{font-style:normal;margin-left:.4em;font-size:.92em;letter-spacing:.03em}
+.zh.blk{display:block;margin:.3em 0 0;font-size:.78em;color:var(--faint);letter-spacing:.08em}
+#start p .zh.blk{font-size:.86em;margin-top:.7em}
+/* start */
+#start{position:fixed;inset:0;z-index:10;background:var(--wall);display:flex;align-items:center;justify-content:center;padding:40px;transition:opacity 1.2s ease}
+#start.gone{opacity:0;pointer-events:none}
+#start .in{max-width:560px;width:100%}
+#start h1{font-weight:400;font-size:clamp(56px,11vw,128px);line-height:.95;letter-spacing:-.01em;margin-left:-.04em}
+#start .sub{font-style:italic;font-size:22px;color:var(--faint);margin-top:10px}
+#start hr{border:0;border-top:1px solid var(--rule);margin:34px 0 22px}
+#start p{max-width:46ch;font-size:19px;color:var(--ink)}
+#start ul{list-style:none;margin-top:30px;display:grid;gap:9px;font-size:21px}
+#start li button{font-style:italic}
+#start .fine{margin-top:34px;font-size:15px;color:var(--faint);font-style:italic}
+#note{margin-top:18px;font-size:16px;color:var(--ink);min-height:1.4em}
+
+/* app */
+header{display:flex;justify-content:space-between;align-items:baseline;gap:24px;flex-wrap:wrap;padding:20px 36px 13px;border-bottom:1px solid var(--rule)}
+.mark h1{display:inline;font-weight:500;font-size:19px;letter-spacing:.34em;text-transform:uppercase}
+.mark span{font-style:italic;color:var(--faint);margin-left:18px;font-size:17px}
+nav{display:flex;gap:26px;flex-wrap:wrap;font-size:17px;font-style:italic}
+.plates{display:grid;grid-template-columns:1fr 1fr;gap:36px;padding:26px 36px 0;align-items:start}
+figure{min-width:0}
+.frame{position:relative;width:100%;aspect-ratio:var(--ar,4/3);background:var(--plate);box-shadow:0 0 0 1px var(--rule);overflow:hidden}
+.frame canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#base{filter:grayscale(1) contrast(1.18) brightness(.96)}
+#over{mix-blend-mode:difference}
+figcaption{display:flex;justify-content:space-between;gap:16px;padding-top:11px;font-size:16px}
+figcaption .t{font-style:italic}
+figcaption .m{color:var(--faint);font-variant-numeric:lining-nums tabular-nums;text-align:right}
+#verse{text-align:center;font-style:italic;font-size:clamp(22px,2.5vw,34px);line-height:1.3;padding:34px 36px 0;min-height:calc(2.6em + 34px);max-width:1100px;margin:0 auto;opacity:0;transition:opacity 1.4s ease}
+footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:26px 36px 30px;font-size:15px;color:var(--faint);font-style:italic}
+@media (max-width:860px){.plates{grid-template-columns:1fr;gap:28px;padding:20px 18px 0}header{padding:18px}footer{padding:22px 18px}#verse{padding:28px 18px 0}}
+</style>
+</head>
+<body>
+
+<div id="start">
+  <div class="in">
+    <h1>Abscission</h1>
+    <div class="sub">a study in leaving<span class="zh">一场关于离去的研究</span></div>
+    <hr>
+    <p>Hold a fallen leaf beneath a microscope camera. The left plate watches. The right plate remembers: it grows a branching drawing from what the lens finds, and a reading head sweeps across both, turning veins into notes.<span class="zh blk">将一片落叶置于显微镜头之下。左侧画面凝视，右侧画面记忆：它依据镜头所见，生长出分枝的图形；一道读取之线扫过两幅画面，把叶脉化为音符。</span></p>
+    <ul>
+      <li><button id="goCam">begin with a camera<span class="zh">以相机开始</span></button></li>
+      <li><button id="goImg">open a photograph<span class="zh">打开一张照片</span></button></li>
+      <li><button id="goDemo">look at a sample leaf<span class="zh">观看示例叶片</span></button></li>
+    </ul>
+    <div id="note"></div>
+    <div class="fine">Sound is part of the piece; headphones, if you can. Nothing leaves your browser.<span class="zh blk">声音是作品的一部分，建议佩戴耳机。所有内容都不会离开你的浏览器。</span></div>
+  </div>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
+
+<main id="app" hidden>
+  <header>
+    <div class="mark"><h1>Abscission</h1><span>a study in leaving<span class="zh">一场关于离去的研究</span></span></div>
+    <nav>
+      <button id="bCam">camera<span class="zh">相机</span></button>
+      <button id="bImg">photograph<span class="zh">照片</span></button>
+      <button id="bSnd">sound — off</button>
+      <button id="bHold">hold<span class="zh">定格</span></button>
+      <button id="bInv">invert<span class="zh">反色</span></button>
+      <button id="bSave">keep a plate<span class="zh">留存画面</span></button>
+    </nav>
+  </header>
+
+  <section class="plates">
+    <figure>
+      <div class="frame"><canvas id="base"></canvas><canvas id="over"></canvas></div>
+      <figcaption><span class="t">Plate I — Observation<span class="zh">图一 · 观察</span></span><span class="m" id="mL"></span></figcaption>
+    </figure>
+    <figure>
+      <div class="frame"><canvas id="gen"></canvas></div>
+      <figcaption><span class="t">Plate II — Reconstruction<span class="zh">图二 · 重构</span></span><span class="m" id="mR"></span></figcaption>
+    </figure>
+  </section>
+
+  <p id="verse"></p>
+
+  <footer>
+    <span id="fScale"></span>
+    <span>space — hold<span class="zh">定格</span> &nbsp;·&nbsp; i — invert<span class="zh">反色</span> &nbsp;·&nbsp; m — sound<span class="zh">声音</span> &nbsp;·&nbsp; s — keep a plate<span class="zh">留存画面</span></span>
+  </footer>
+</main>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+const bi = (en, zh) => `${en}<span class="zh">${zh}</span>`;
+const CJK = "'Noto Serif SC','Songti SC','STSong','Source Han Serif SC','SimSun'";
+
+const base = $('base'), over = $('over'), gen = $('gen');
+const bctx = base.getContext('2d'), octx = over.getContext('2d'), gctx = gen.getContext('2d');
+
+/* ---------- grid ---------- */
+const GW = 192; let GH = 144, N = GW * GH;
+let gray, g1, g4, gsm, gs2, tmpA, tmpB, ridge;
+let rT = 0.02, active = false, relief = 0, tone = 0.5, firstFrame = true;
+const ac = document.createElement('canvas'); ac.width = GW; ac.height = GH;
+const actx = ac.getContext('2d', { willReadFrequently: true });
+let contourPath = new Path2D();
+
+const S = { started: false, hold: false, sound: false, theme: 'light', t: 0 };
+let PLATE = '#f8f7f3', INKRGB = '18,18,18';
+const ink = a => `rgba(${INKRGB},${a})`;
+
+/* ---------- sources ---------- */
+const video = document.createElement('video'); video.muted = true; video.playsInline = true;
+let stream = null, devices = [], devIdx = 0, still = null, kind = null, lastAR = 0;
+const sample = document.createElement('canvas'); sample.width = 960; sample.height = 720;
+const sctx = sample.getContext('2d');
+
+const srcEl = () => kind === 'cam' ? video : kind === 'still' ? still : kind === 'demo' ? sample : null;
+function srcSize() {
+  if (kind === 'cam') return [video.videoWidth, video.videoHeight];
+  if (kind === 'still' && still) return [still.naturalWidth || still.width, still.naturalHeight || still.height];
+  if (kind === 'demo') return [sample.width, sample.height];
+  return [0, 0];
+}
+function srcReady() {
+  const e = srcEl(); if (!e) return false;
+  if (kind === 'cam') return video.readyState >= 2 && video.videoWidth > 0;
+  return true;
+}
+
+function stopCam() { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } }
+async function startCam(deviceId) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('this browser has no camera access here');
+  const v = { width: { ideal: 1280 }, height: { ideal: 960 } };
+  if (deviceId) v.deviceId = { exact: deviceId };
+  const st = await navigator.mediaDevices.getUserMedia({ video: v, audio: false });
+  stopCam(); stream = st;
+  video.srcObject = st; await video.play();
+  kind = 'cam'; firstFrame = true;
+  devices = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+  const cur = st.getVideoTracks()[0].getSettings().deviceId;
+  devIdx = Math.max(0, devices.findIndex(d => d.deviceId === cur));
+  camLabel();
+}
+function camLabel() {
+  const b = $('bCam');
+  if (kind !== 'cam') { b.innerHTML = bi('use camera', '使用相机'); b.disabled = false; }
+  else if (devices.length > 1) { b.innerHTML = bi(`camera ${devIdx + 1} of ${devices.length}`, `相机 ${devIdx + 1}/${devices.length}`); b.disabled = false; }
+  else { b.innerHTML = bi('camera 1 of 1', '相机 1/1'); b.disabled = true; }
+}
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => { stopCam(); still = img; kind = 'still'; firstFrame = true; camLabel(); res(); };
+    img.onerror = () => rej(new Error('that file could not be read as an image'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* sample leaf: a synthetic, slowly turning leaf, so the piece can be seen without a camera */
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function drawSample(t) {
+  const c = sctx, W = sample.width, H = sample.height, rnd = mulberry(7);
+  const p = (t / 40) % 1, f = p * 3, i = Math.min(2, Math.floor(f)), u = f - i;
+  const st = [[88, 132, 48], [200, 176, 44], [196, 78, 36], [104, 66, 40]];
+  const A = st[i], B = st[i + 1], col = A.map((v, k) => v + (B[k] - v) * u);
+  c.fillStyle = '#c9c5ba'; c.fillRect(0, 0, W, H);
+  c.save(); c.translate(W / 2, H * 0.99);
+  const path = new Path2D();
+  path.moveTo(0, 0); path.bezierCurveTo(-W * .52, -H * .1, -W * .44, -H * .74, 0, -H * .97);
+  path.bezierCurveTo(W * .44, -H * .74, W * .52, -H * .1, 0, 0);
+  const g = c.createRadialGradient(0, -H * .45, 10, 0, -H * .45, H * .6);
+  g.addColorStop(0, `rgb(${col.map(v => Math.min(255, v * 1.12 | 0))})`);
+  g.addColorStop(1, `rgb(${col.map(v => v * .78 | 0)})`);
+  c.fillStyle = g; c.fill(path); c.clip(path);
+  for (let k = 0; k < 400; k++) {
+    c.fillStyle = `rgba(${rnd() < .5 ? '255,255,255' : '0,0,0'},${.02 + rnd() * .04})`;
+    c.beginPath(); c.arc((rnd() - .5) * W, -rnd() * H, 6 + rnd() * 26, 0, TAU); c.fill();
+  }
+  const vc = col.map(v => Math.min(255, v * 1.45 + 30 | 0));
+  c.lineCap = 'round'; c.strokeStyle = `rgba(${vc},.85)`;
+  c.lineWidth = 9; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(10, -H * .5, 0, -H * .95); c.stroke();
+  for (let k = 0; k < 10; k++) {
+    const y = -H * (.07 + k * .088);
+    for (const sd of [-1, 1]) {
+      c.lineWidth = Math.max(1.6, 5 - k * .35);
+      c.beginPath(); c.moveTo(0, y); c.quadraticCurveTo(sd * W * .2, y - H * .03, sd * W * (.44 - k * .03), y - H * .15); c.stroke();
+    }
+  }
+  c.strokeStyle = `rgba(${vc},.35)`; c.lineWidth = 1.3;
+  for (let k = 0; k < 260; k++) {
+    const x = (rnd() - .5) * W * .8, y = -rnd() * H * .95, a = rnd() * TAU, l = 18 + rnd() * 34;
+    c.beginPath(); c.moveTo(x, y);
+    c.quadraticCurveTo(x + Math.cos(a) * l * .6 + (rnd() - .5) * 12, y + Math.sin(a) * l * .6 + (rnd() - .5) * 12, x + Math.cos(a) * l, y + Math.sin(a) * l);
+    c.stroke();
+  }
+  c.restore();
+}
+
+/* ---------- grid allocation ---------- */
+function setGrid() {
+  const [w, h] = srcSize();
+  const ar = (w && h) ? w / h : 4 / 3;
+  lastAR = ar;
+  GH = Math.max(48, Math.round(GW / ar)); N = GW * GH;
+  ac.width = GW; ac.height = GH;
+  gray = new Float32Array(N); g1 = new Float32Array(N); g4 = new Float32Array(N);
+  gsm = new Float32Array(N); gs2 = new Float32Array(N); tmpA = new Float32Array(N); tmpB = new Float32Array(N); ridge = new Float32Array(N);
+  gs2.fill(0.5);
+  document.documentElement.style.setProperty('--ar', `${w || 4} / ${h || 3}`);
+  firstFrame = true; anns = []; contourPath = new Path2D();
+  initCells(); treeReset(); phase = 'wait'; phaseT = 0;
+  requestAnimationFrame(resize);
+}
+
+function boxBlur(src, dst, r) {
+  const W = GW, H = GH, k = 1 / (2 * r + 1);
+  for (let y = 0; y < H; y++) {
+    const o = y * W; let acc = 0;
+    for (let x = -r; x <= r; x++) acc += src[o + clamp(x, 0, W - 1)];
+    for (let x = 0; x < W; x++) {
+      tmpA[o + x] = acc * k;
+      acc += src[o + Math.min(x + r + 1, W - 1)] - src[o + Math.max(x - r, 0)];
+    }
+  }
+  for (let x = 0; x < W; x++) {
+    let acc = 0;
+    for (let y = -r; y <= r; y++) acc += tmpA[clamp(y, 0, H - 1) * W + x];
+    for (let y = 0; y < H; y++) {
+      dst[y * W + x] = acc * k;
+      acc += tmpA[Math.min(y + r + 1, H - 1) * W + x] - tmpA[Math.max(y - r, 0) * W + x];
+    }
+  }
+}
+
+/* ---------- analysis ---------- */
+const F = { g: 0, y: 0, r: 0, b: 0 };
+let state = 'bare', cand = 'bare', candT = 0;
+let anns = [], annTick = 0;
+
+function analyse() {
+  const e = srcEl(); if (!e) return;
+  actx.drawImage(e, 0, 0, GW, GH);
+  const d = actx.getImageData(0, 0, GW, GH).data;
+  let nG = 0, nY = 0, nR = 0, nB = 0, nT = 0;
+  for (let i = 0, p = 0; i < N; i++, p += 4) {
+    const r = d[p], g = d[p + 1], b = d[p + 2];
+    const gr = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    gray[i] = firstFrame ? gr : gray[i] + (gr - gray[i]) * 0.55;
+    if ((i & 1) === 0) {
+      nT++;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), df = mx - mn;
+      const v = mx / 255, s = mx ? df / mx : 0;
+      if (s > 0.22 && v > 0.12) {
+        let h;
+        if (df === 0) h = 0;
+        else if (mx === r) h = 60 * (((g - b) / df) % 6);
+        else if (mx === g) h = 60 * ((b - r) / df + 2);
+        else h = 60 * ((r - g) / df + 4);
+        if (h < 0) h += 360;
+        if (h >= 65 && h < 175) nG++;
+        else if (h >= 38 && h < 65) { if (v > 0.45) nY++; else nB++; }
+        else if (h < 38 || h >= 330) { if (s >= 0.55 && v >= 0.55) nR++; else nB++; }
+      }
+    }
+  }
+  firstFrame = false;
+  const k = 0.1;
+  F.g = lerp(F.g, nG / nT, k); F.y = lerp(F.y, nY / nT, k); F.r = lerp(F.r, nR / nT, k); F.b = lerp(F.b, nB / nT, k);
+
+  boxBlur(gray, g1, 1); boxBlur(gray, g4, 4);
+  boxBlur(gray, tmpB, 2); boxBlur(tmpB, gs2, 2);
+
+  let m = 0; for (let i = 0; i < N; i++) { ridge[i] = Math.abs(g1[i] - g4[i]); m += ridge[i]; }
+  m /= N; let v = 0; for (let i = 0; i < N; i++) { const q = ridge[i] - m; v += q * q; }
+  const sd = Math.sqrt(v / N);
+  rT = m + 1.0 * sd;
+  const wasActive = active;
+  active = m > 0.007;
+  relief = clamp(m * 14, 0, 1);
+  if (active && !wasActive) retargetAll();
+
+  contourPath = buildContours();
+
+  if ((annTick++ % 5) === 0) updateAnns();
+
+  // pigment state with debounce
+  const arr = [['green', F.g], ['yellow', F.y], ['red', F.r], ['brown', F.b]];
+  let best = 'bare', bv = 0.12;
+  for (const [n, val] of arr) if (val > bv) { bv = val; best = n; }
+  if (!active) best = 'bare';
+  if (best !== cand) { cand = best; candT = S.t; }
+  if (cand !== state && S.t - candT > 2) { state = cand; onState(); }
+}
+
+function buildContours() {
+  const p = new Path2D(), W = GW, H = GH;
+  let m = 0; for (let i = 0; i < N; i++) m += gs2[i]; m /= N;
+  let v = 0; for (let i = 0; i < N; i++) { const q = gs2[i] - m; v += q * q; }
+  const sd = Math.sqrt(v / N);
+  tone = m;
+  if (sd < 0.01) return p;
+  const levels = [-1.1, -0.55, 0, 0.55, 1.1].map(k => m + k * sd);
+  for (const L of levels) {
+    for (let y = 0; y < H - 1; y++) {
+      const o = y * W;
+      for (let x = 0; x < W - 1; x++) {
+        const a = gs2[o + x], b = gs2[o + x + 1], c = gs2[o + W + x + 1], d = gs2[o + W + x];
+        const idx = (a > L ? 8 : 0) | (b > L ? 4 : 0) | (c > L ? 2 : 0) | (d > L ? 1 : 0);
+        if (idx === 0 || idx === 15) continue;
+        const tx = x + (L - a) / (b - a), ty = y;
+        const rx = x + 1, ry = y + (L - b) / (c - b);
+        const bx = x + (L - d) / (c - d), by = y + 1;
+        const lx = x, ly = y + (L - a) / (d - a);
+        switch (idx) {
+          case 1: case 14: p.moveTo(lx, ly); p.lineTo(bx, by); break;
+          case 2: case 13: p.moveTo(bx, by); p.lineTo(rx, ry); break;
+          case 3: case 12: p.moveTo(lx, ly); p.lineTo(rx, ry); break;
+          case 4: case 11: p.moveTo(tx, ty); p.lineTo(rx, ry); break;
+          case 5: p.moveTo(lx, ly); p.lineTo(tx, ty); p.moveTo(bx, by); p.lineTo(rx, ry); break;
+          case 6: case 9: p.moveTo(tx, ty); p.lineTo(bx, by); break;
+          case 7: case 8: p.moveTo(lx, ly); p.lineTo(tx, ty); break;
+          case 10: p.moveTo(tx, ty); p.lineTo(rx, ry); p.moveTo(lx, ly); p.lineTo(bx, by); break;
+        }
+      }
+    }
+  }
+  return p;
+}
+
+/* annotations: the places where the leaf is most itself */
+const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'];
+function updateAnns() {
+  const cands = [];
+  if (active) {
+    for (let y = 6; y < GH - 6; y += 2) {
+      for (let x = 6; x < GW - 6; x += 2) {
+        const i = y * GW + x, val = ridge[i];
+        if (val < rT * 1.6) continue;
+        if (val < ridge[i - 4] || val < ridge[i + 4] || val < ridge[i - 4 * GW] || val < ridge[i + 4 * GW] ||
+            val < ridge[i - 4 - 4 * GW] || val < ridge[i + 4 + 4 * GW] || val < ridge[i - 4 + 4 * GW] || val < ridge[i + 4 - 4 * GW]) continue;
+        cands.push({ x, y, v: val });
+      }
+    }
+    cands.sort((a, b) => b.v - a.v);
+  }
+  const picked = [];
+  for (const c of cands) {
+    if (picked.length >= 7) break;
+    if (picked.every(p => Math.hypot(p.x - c.x, p.y - c.y) > 24)) picked.push(c);
+  }
+  const used = new Set();
+  for (const a of anns) {
+    let bi = -1, bd = 10;
+    picked.forEach((c, i) => { if (used.has(i)) return; const dd = Math.hypot(c.x - a.x, c.y - a.y); if (dd < bd) { bd = dd; bi = i; } });
+    if (bi >= 0) { used.add(bi); const c = picked[bi]; a.x = lerp(a.x, c.x, 0.5); a.y = lerp(a.y, c.y, 0.5); a.miss = 0; a.ang = angleAt(a.x, a.y); }
+    else a.miss++;
+  }
+  picked.forEach((c, i) => {
+    if (used.has(i) || anns.filter(a => a.miss <= 6).length >= 7) return;
+    const taken = new Set(anns.map(a => a.slot));
+    let slot = 0; while (taken.has(slot)) slot++;
+    if (slot > 6) return;
+    anns.push({ x: c.x, y: c.y, slot, a: 0, miss: 0, ang: angleAt(c.x, c.y) });
+  });
+}
+function angleAt(x, y) {
+  const xi = clamp(Math.round(x), 1, GW - 2), yi = clamp(Math.round(y), 1, GH - 2), i = yi * GW + xi;
+  const gx = gs2[i + 1] - gs2[i - 1], gy = gs2[i + GW] - gs2[i - GW];
+  let a = Math.atan2(gy, gx) * 180 / Math.PI + 90;
+  a = ((a % 180) + 180) % 180;
+  return Math.round(a);
+}
+
+/* ---------- poetry ---------- */
+const PIG = {
+  bare: 'no leaf in view 视野中无叶', green: 'chlorophyll 叶绿素', yellow: 'carotene 胡萝卜素',
+  red: 'anthocyanin 花青素', brown: 'tannin 单宁'
+};
+const VERSES = {
+  bare: [
+    ['Place a leaf beneath the glass, and wait.', '将一片叶子置于镜下，静静等待。'],
+    ['An empty lens is also a kind of autumn.', '空空的镜头，也是一种秋天。'],
+    ['Nothing yet. The light is holding its breath.', '尚无一物。光在屏住呼吸。']
+  ],
+  green: [
+    ['Still green. Still arguing with the wind.', '仍是绿的，仍在与风争辩。'],
+    ['Water climbs these small canals, unaware of the calendar.', '水沿着这些细小的沟渠攀升，浑然不觉日历。'],
+    ['Every cell is a room where light is kept.', '每个细胞，都是一间收藏光的屋子。'],
+    ['It does not know it is the last of summer.', '它不知道，自己是夏天的最后一程。']
+  ],
+  yellow: [
+    ['The green withdraws. What was beneath is revealed, not made.', '绿意退去，底下的颜色是显露，而非新造。'],
+    ['Gold is only what remains when the work is done.', '金黄，只是劳作结束后留下的东西。'],
+    ['The tree is counting what it can afford to lose.', '树在盘算，自己还舍得失去什么。']
+  ],
+  red: [
+    ['Sugar trapped, sunlight turned to flame: a leaf learning to burn.', '糖被困住，阳光化作火焰：一片叶子学着燃烧。'],
+    ['Red is what the leaf makes when it no longer needs to be useful.', '当叶子不再需要有用，它便造出红色。'],
+    ['A brightness that comes only from leaving.', '一种只因离去才有的明亮。']
+  ],
+  brown: [
+    ['Brown is the colour of having given everything back.', '褐色，是把一切归还之后的颜色。'],
+    ['The veins remain. The argument has been settled.', '叶脉犹在，争辩已经平息。'],
+    ['What falls is not lost. It only changes address.', '落下的并未失去，只是换了住处。'],
+    ['Soon this will be soil, and soil will be green again.', '不久它将成为泥土，而泥土会再度变绿。']
+  ]
+};
+const verseEl = $('verse'); let verseNext = 0, verseCur = '', verseCurZh = '';
+function updateVerse() {
+  if (S.t < verseNext) return;
+  const list = VERSES[state]; let v, guard = 0;
+  do { v = list[Math.floor(Math.random() * list.length)]; } while (v[0] === verseCur && list.length > 1 && ++guard < 8);
+  verseCur = v[0]; verseCurZh = v[1]; verseNext = S.t + 11 + v[0].length * 0.08;
+  verseEl.style.opacity = 0;
+  setTimeout(() => { verseEl.innerHTML = `${v[0]}<span class="zh blk">${v[1]}</span>`; verseEl.style.opacity = 1; }, 1400);
+}
+
+/* ---------- sound ---------- */
+const ROOT = 146.83; // D3
+const MODES = {
+  bare:   { n: 'open fifths 空五度',            s: [0, 7],           lo: 12 },
+  green:  { n: 'major pentatonic 大调五声音阶',  s: [0, 2, 4, 7, 9],  lo: 12 },
+  yellow: { n: 'lydian pentatonic 利底亚五声音阶', s: [0, 2, 4, 6, 9],  lo: 12 },
+  red:    { n: 'minor pentatonic 小调五声音阶',  s: [0, 3, 5, 7, 10], lo: 12 },
+  brown:  { n: 'hirajoshi 平调子音阶',          s: [0, 2, 3, 7, 8],  lo: 0 }
+};
+const PC = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const noteName = semis => { const m = 50 + semis; return PC[m % 12] + (Math.floor(m / 12) - 1); };
+const AU = { ctx: null, voices: 0, pad: [] };
+let lastNote = null, lastNoteT = -9, lastIdx = -1, lastIdxT = -9, lastChime = -9;
+
+function audioInit() {
+  if (AU.ctx) return;
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+  const ctx = AU.ctx = new AC();
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 4;
+  AU.master = ctx.createGain(); AU.master.gain.value = 0; AU.master.connect(comp); comp.connect(ctx.destination);
+  const len = Math.floor(ctx.sampleRate * 4), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) { const ch = ir.getChannelData(c); for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+  const conv = ctx.createConvolver(); conv.buffer = ir;
+  const wet = ctx.createGain(); wet.gain.value = 0.75; conv.connect(wet); wet.connect(AU.master);
+  AU.send = ctx.createGain(); AU.send.gain.value = 0.9; AU.send.connect(conv);
+  AU.dry = ctx.createGain(); AU.dry.gain.value = 0.7; AU.dry.connect(AU.master);
+  AU.pf = ctx.createBiquadFilter(); AU.pf.type = 'lowpass'; AU.pf.frequency.value = 700; AU.pf.Q.value = 0.4;
+  AU.pg = ctx.createGain(); AU.pg.gain.value = 0; AU.pf.connect(AU.pg); AU.pg.connect(AU.dry); AU.pg.connect(AU.send);
+  [0.5, 0.36, 0.28, 0.2].forEach((gv, i) => {
+    const o = ctx.createOscillator(); o.type = i % 2 ? 'triangle' : 'sine'; o.frequency.value = ROOT; o.detune.value = (i - 1.5) * 4;
+    const g = ctx.createGain(); g.gain.value = gv; o.connect(g); g.connect(AU.pf); o.start(); AU.pad.push(o);
+  });
+  const lfo = ctx.createOscillator(); lfo.frequency.value = 0.07;
+  const lg = ctx.createGain(); lg.gain.value = 220; lfo.connect(lg); lg.connect(AU.pf.frequency); lfo.start();
+  setPad();
+}
+function setPad() {
+  if (!AU.ctx) return;
+  const m = MODES[state], now = AU.ctx.currentTime;
+  const sem = [0, 7, 12, 12 + (m.s[2] !== undefined ? m.s[2] : 7)];
+  AU.pad.forEach((o, i) => o.frequency.setTargetAtTime(ROOT * Math.pow(2, sem[i] / 12), now, 2));
+  AU.pg.gain.setTargetAtTime(state === 'bare' ? 0.05 : 0.11, now, 1.5);
+  AU.pf.frequency.setTargetAtTime(450 + 1500 * tone, now, 1.2);
+}
+function setSound(on) {
+  S.sound = on; $('bSnd').innerHTML = bi('sound', '声音') + ' — ' + (on ? bi('on', '开').replace('class="zh"', 'class="zh" style="margin-left:.25em"') : bi('off', '关').replace('class="zh"', 'class="zh" style="margin-left:.25em"'));
+  if (!AU.ctx) return;
+  if (on) { AU.ctx.resume(); AU.master.gain.setTargetAtTime(0.9, AU.ctx.currentTime, 0.4); }
+  else AU.master.gain.setTargetAtTime(0, AU.ctx.currentTime, 0.15);
+}
+function pluck(semis, vel, pan, dur) {
+  if (!AU.ctx || !S.sound || AU.voices > 14) return;
+  const ctx = AU.ctx, t = ctx.currentTime, f = ROOT * Math.pow(2, semis / 12);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vel, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  const o1 = ctx.createOscillator(); o1.type = 'sine'; o1.frequency.value = f;
+  const o2 = ctx.createOscillator(); o2.type = 'sine'; o2.frequency.value = f * 2.005;
+  const g2 = ctx.createGain(); g2.gain.value = 0.18;
+  o1.connect(g); o2.connect(g2); g2.connect(g);
+  let out = g;
+  if (ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = clamp(pan, -1, 1); g.connect(p); out = p; }
+  out.connect(AU.dry); out.connect(AU.send);
+  AU.voices++;
+  o1.start(t); o2.start(t); o1.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
+  o1.onended = () => { AU.voices--; try { g.disconnect(); out.disconnect(); } catch (e) {} };
+}
+function semisFromY(yn) {
+  const m = MODES[state], len = m.s.length, steps = len * 3;
+  const k = clamp(Math.floor((1 - yn) * steps), 0, steps - 1);
+  return { k, semis: m.lo + 12 * Math.floor(k / len) + m.s[k % len] };
+}
+function onState() {
+  verseNext = S.t; setPad();
+  $('fScale').textContent = `D · ${MODES[state].n}`;
+}
+
+/* ---------- scan line ---------- */
+let sweep = 0; const SWEEP_T = 18;
+function updateSweep(dt) {
+  const prev = Math.floor(sweep * GW);
+  sweep += dt / SWEEP_T; if (sweep >= 1) sweep -= 1;
+  const cur = Math.floor(sweep * GW);
+  let c = prev, guard = 0;
+  while (c !== cur && guard++ < 16) { c = (c + 1) % GW; readColumn(c); }
+}
+function readColumn(c) {
+  if (!S.sound || !active || state === 'bare' || !ridge) return;
+  let best = 0, by = -1;
+  for (let y = 2; y < GH - 2; y++) { const v = ridge[y * GW + c]; if (v > best) { best = v; by = y; } }
+  if (by < 0 || best < rT * 1.4) return;
+  if (S.t - lastNoteT < 0.3) return;
+  const n = semisFromY(by / GH);
+  if (n.k === lastIdx && S.t - lastIdxT < 0.8) return;
+  const vel = clamp((best - rT) / (rT * 3), 0.2, 1) * 0.14;
+  pluck(n.semis, vel, (c / GW) * 1.4 - 0.7, 2.6);
+  lastNoteT = S.t; lastIdx = n.k; lastIdxT = S.t; lastNote = { name: noteName(n.semis), t: S.t };
+}
+function chimeAt(x, y) {
+  if (!S.sound || S.t - lastChime < 0.35) return;
+  lastChime = S.t;
+  pluck(semisFromY(y / GH).semis, 0.05, (x / GW) * 1.2 - 0.6, 3.2);
+}
+function chimeDeath() {
+  if (!S.sound) return;
+  [0, 7, 12].forEach((s, i) => setTimeout(() => pluck(s, 0.1, (i - 1) * 0.35, 7), i * 260));
+}
+
+/* ---------- cells (Voronoi, drifting with the feed) ---------- */
+const NC = 96;
+const sx = new Float32Array(NC), sy = new Float32Array(NC), tx = new Float32Array(NC), ty = new Float32Array(NC), ctone = new Float32Array(NC);
+let cursor = 0, retT = 0;
+function initCells() {
+  for (let i = 0; i < NC; i++) { sx[i] = tx[i] = Math.random() * GW; sy[i] = ty[i] = Math.random() * GH; ctone[i] = 0.5; }
+}
+function retarget(i) {
+  if (active && Math.random() < 0.7) {
+    let bx = Math.random() * GW, by = Math.random() * GH, bv = -1;
+    for (let k = 0; k < 6; k++) {
+      const x = Math.random() * (GW - 2) + 1, y = Math.random() * (GH - 2) + 1, v = ridge[(y | 0) * GW + (x | 0)];
+      if (v > bv) { bv = v; bx = x; by = y; }
+    }
+    tx[i] = bx; ty[i] = by;
+  } else { tx[i] = Math.random() * GW; ty[i] = Math.random() * GH; }
+}
+function retargetAll() { for (let i = 0; i < NC; i++) retarget(i); }
+function updateCells(dt) {
+  retT += dt;
+  if (retT > 0.3) { retT = 0; retarget(cursor); cursor = (cursor + 1) % NC; }
+  const k = Math.min(1, dt * 1.2);
+  for (let i = 0; i < NC; i++) {
+    sx[i] = clamp(sx[i] + (tx[i] - sx[i]) * k + Math.sin(S.t * 0.21 + i * 2.3) * 0.012, 0.5, GW - 0.5);
+    sy[i] = clamp(sy[i] + (ty[i] - sy[i]) * k + Math.cos(S.t * 0.17 + i * 1.9) * 0.012, 0.5, GH - 0.5);
+    ctone[i] = lerp(ctone[i], gs2[(sy[i] | 0) * GW + (sx[i] | 0)], Math.min(1, dt * 3));
+  }
+}
+const bufA = new Float64Array(512), bufB = new Float64Array(512);
+let CB = bufA, CN = 0;
+function cell(i) {
+  let a = bufA, b = bufB, n = 4;
+  a[0] = 0; a[1] = 0; a[2] = GW; a[3] = 0; a[4] = GW; a[5] = GH; a[6] = 0; a[7] = GH;
+  const ax = sx[i], ay = sy[i];
+  let maxR2 = GW * GW + GH * GH;
+  for (let j = 0; j < NC && n >= 3; j++) {
+    if (j === i) continue;
+    const bx = sx[j], by = sy[j], dx = bx - ax, dy = by - ay;
+    if (dx * dx + dy * dy > 4 * maxR2) continue;
+    const c = (bx * bx + by * by - ax * ax - ay * ay) / 2;
+    let m = 0;
+    let px = a[2 * (n - 1)], py = a[2 * (n - 1) + 1], pf = px * dx + py * dy - c;
+    for (let k = 0; k < n; k++) {
+      const qx = a[2 * k], qy = a[2 * k + 1], qf = qx * dx + qy * dy - c;
+      if (qf <= 0) {
+        if (pf > 0) { const t = pf / (pf - qf); b[2 * m] = px + (qx - px) * t; b[2 * m + 1] = py + (qy - py) * t; m++; }
+        b[2 * m] = qx; b[2 * m + 1] = qy; m++;
+      } else if (pf <= 0) {
+        const t = pf / (pf - qf); b[2 * m] = px + (qx - px) * t; b[2 * m + 1] = py + (qy - py) * t; m++;
+      }
+      px = qx; py = qy; pf = qf;
+    }
+    n = m; const t = a; a = b; b = t;
+    let mr = 0;
+    for (let k = 0; k < n; k++) { const ddx = a[2 * k] - ax, ddy = a[2 * k + 1] - ay, d2 = ddx * ddx + ddy * ddy; if (d2 > mr) mr = d2; }
+    maxR2 = mr;
+  }
+  CB = a; CN = n;
+}
+
+/* ---------- tree (space colonisation along the veins) ---------- */
+const MAXN = 2600, STEP = 1.5, KILL2 = 3.0 * 3.0;
+const nx = new Float32Array(MAXN), ny = new Float32Array(MAXN), np = new Int16Array(MAXN), nc = new Uint8Array(MAXN), nw = new Float32Array(MAXN), nf = new Float32Array(MAXN);
+const sdx = new Float32Array(MAXN), sdy = new Float32Array(MAXN), scnt = new Uint16Array(MAXN);
+let nn = 1, atx = [], aty = [], phase = 'wait', phaseT = 0, cycleT = 0, stepAcc = 0, topT = 0, cycleNo = 1;
+function treeReset() {
+  nn = 1; nx[0] = GW * 0.5; ny[0] = GH - 1; np[0] = -1; nc[0] = 0; nf[0] = Math.random() * 3;
+  atx = []; aty = [];
+}
+function seedAtts(n) {
+  let got = 0;
+  for (let k = 0; k < n * 10 && got < n; k++) {
+    const x = Math.random() * (GW - 4) + 2, y = Math.random() * (GH - 4) + 2;
+    if (ridge[(y | 0) * GW + (x | 0)] > rT * 1.3) { atx.push(x); aty.push(y); got++; }
+  }
+  return got;
+}
+function growStep() {
+  const A = atx.length; if (!A) return;
+  const n0 = nn;
+  for (let a = 0; a < A; a++) {
+    const px = atx[a], py = aty[a]; let best = -1, bd = 1e12;
+    for (let i = 0; i < n0; i++) { const dx = px - nx[i], dy = py - ny[i], d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+    if (best >= 0) { const d = Math.sqrt(bd) || 1; sdx[best] += (px - nx[best]) / d; sdy[best] += (py - ny[best]) / d; scnt[best]++; }
+  }
+  let splitX = -1, splitY = -1;
+  for (let i = 0; i < n0 && nn < MAXN; i++) {
+    if (!scnt[i]) continue;
+    let dx = sdx[i] / scnt[i] + (Math.random() - 0.5) * 0.3, dy = sdy[i] / scnt[i] + (Math.random() - 0.5) * 0.3;
+    const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+    const x = nx[i] + dx * STEP, y = ny[i] + dy * STEP;
+    nx[nn] = x; ny[nn] = y; np[nn] = i; nc[nn] = 0; nf[nn] = nf[i] + Math.random();
+    nc[i]++; if (nc[i] === 2) { splitX = x; splitY = y; }
+    nn++;
+  }
+  for (let a = A - 1; a >= 0; a--) {
+    for (let i = n0; i < nn; i++) {
+      const dx = atx[a] - nx[i], dy = aty[a] - ny[i];
+      if (dx * dx + dy * dy < KILL2) { atx.splice(a, 1); aty.splice(a, 1); break; }
+    }
+  }
+  for (let i = 0; i < n0; i++) { sdx[i] = 0; sdy[i] = 0; scnt[i] = 0; }
+  if (splitX >= 0) chimeAt(splitX, splitY);
+}
+function updateTree(dt) {
+  phaseT += dt;
+  if (phase === 'wait') {
+    if (active && phaseT > 0.5) { phaseT = 0; if (seedAtts(240) > 40) { phase = 'grow'; cycleT = 0; stepAcc = 0; topT = 0; } }
+  } else if (phase === 'grow') {
+    cycleT += dt; stepAcc += dt * 14;
+    let guard = 0;
+    while (stepAcc >= 1 && guard++ < 4) { stepAcc -= 1; growStep(); }
+    topT += dt;
+    if (topT > 1.6 && cycleT < 14 && atx.length < 150 && active) { topT = 0; seedAtts(40); }
+    if (atx.length === 0 || nn >= MAXN - 4 || cycleT > 45) { phase = 'rest'; phaseT = 0; }
+  } else if (phase === 'rest') {
+    if (phaseT > 7) { phase = 'dissolve'; phaseT = 0; chimeDeath(); }
+  } else if (phase === 'dissolve') {
+    if (phaseT > 7) { treeReset(); phase = 'wait'; phaseT = 0; cycleNo++; }
+  }
+}
+
+/* ---------- drawing ---------- */
+function drawBase() {
+  const e = srcEl(); if (!e || !srcReady()) return;
+  bctx.drawImage(e, 0, 0, base.width, base.height);
+}
+
+function drawOver() {
+  const c = octx, W = over.width, H = over.height, s = W / GW;
+  c.clearRect(0, 0, W, H);
+  c.strokeStyle = '#fff'; c.fillStyle = '#fff'; c.lineCap = 'round';
+  if (active) {
+    c.save(); c.scale(s, s); c.globalAlpha = 0.6; c.lineWidth = 0.8 * DPR / s; c.stroke(contourPath); c.restore();
+  }
+  // annotations
+  c.font = `italic ${Math.round(14 * DPR)}px 'Cormorant Garamond', Georgia, serif`;
+  c.lineWidth = DPR;
+  for (let i = anns.length - 1; i >= 0; i--) {
+    const a = anns[i];
+    a.a = lerp(a.a, a.miss <= 6 ? 1 : 0, 0.1);
+    if (a.miss > 6 && a.a < 0.03) { anns.splice(i, 1); continue; }
+    const px = a.x * s, py = a.y * s, r = 7 * DPR;
+    c.globalAlpha = a.a * 0.95;
+    c.beginPath(); c.arc(px, py, r, 0, TAU); c.stroke();
+    c.beginPath(); c.moveTo(px - r * 0.45, py); c.lineTo(px + r * 0.45, py); c.moveTo(px, py - r * 0.45); c.lineTo(px, py + r * 0.45); c.stroke();
+    const dir = a.x < GW * 0.55 ? 1 : -1, up = py > 60 * DPR ? -1 : 1;
+    const ex = px + dir * (r + 30 * DPR), ey = py + up * (r + 22 * DPR), hx = ex + dir * 52 * DPR;
+    c.beginPath(); c.moveTo(px + dir * r * 0.7, py + up * r * 0.7); c.lineTo(ex, ey); c.lineTo(hx, ey); c.stroke();
+    c.textAlign = dir > 0 ? 'left' : 'right'; c.textBaseline = up < 0 ? 'bottom' : 'top';
+    c.fillText(`${ROMAN[a.slot]} · ${a.ang}°`, ex, ey + up * 3 * DPR);
+  }
+  // crop marks
+  c.globalAlpha = 0.9; c.lineWidth = DPR;
+  const m = 10 * DPR, L = 16 * DPR;
+  c.beginPath();
+  c.moveTo(m, m + L); c.lineTo(m, m); c.lineTo(m + L, m);
+  c.moveTo(W - m - L, m); c.lineTo(W - m, m); c.lineTo(W - m, m + L);
+  c.moveTo(m, H - m - L); c.lineTo(m, H - m); c.lineTo(m + L, H - m);
+  c.moveTo(W - m - L, H - m); c.lineTo(W - m, H - m); c.lineTo(W - m, H - m - L);
+  c.stroke();
+  // reading head
+  const x = sweep * W, bw = 70 * DPR;
+  const gr = c.createLinearGradient(x - bw, 0, x, 0);
+  gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,0.13)');
+  c.globalAlpha = 1; c.fillStyle = gr; c.fillRect(Math.max(0, x - bw), 0, Math.min(bw, x), H);
+  c.fillStyle = '#fff'; c.globalAlpha = 0.85;
+  c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke();
+  if (lastNote && S.t - lastNote.t < 2) {
+    c.globalAlpha = 1 - (S.t - lastNote.t) / 2; c.textAlign = 'left'; c.textBaseline = 'top';
+    c.fillText(lastNote.name, x + 8 * DPR, 14 * DPR);
+  }
+  c.globalAlpha = 1;
+}
+
+const px_ = new Float32Array(512), py_ = new Float32Array(512);
+function drawGen() {
+  const c = gctx, W = gen.width, H = gen.height, s = W / GW;
+  const dark = S.theme === 'dark';
+  c.fillStyle = PLATE; c.fillRect(0, 0, W, H);
+  c.lineJoin = 'round'; c.lineCap = 'round';
+
+  // cells
+  c.lineWidth = 0.9 * DPR;
+  for (let i = 0; i < NC; i++) {
+    cell(i); const n = CN, a = CB; if (n < 3 || n > 250) continue;
+    let cx = 0, cy = 0; for (let k = 0; k < n; k++) { cx += a[2 * k]; cy += a[2 * k + 1]; } cx /= n; cy /= n;
+    const sh = 0.84; let area = 0;
+    for (let k = 0; k < n; k++) { px_[k] = (cx + (a[2 * k] - cx) * sh) * s; py_[k] = (cy + (a[2 * k + 1] - cy) * sh) * s; }
+    for (let k = 0; k < n; k++) { const k2 = (k + 1) % n; area += px_[k] * py_[k2] - px_[k2] * py_[k]; }
+    area = Math.abs(area) / 2;
+    c.beginPath();
+    c.moveTo((px_[n - 1] + px_[0]) / 2, (py_[n - 1] + py_[0]) / 2);
+    for (let k = 0; k < n; k++) { const k2 = (k + 1) % n; c.quadraticCurveTo(px_[k], py_[k], (px_[k] + px_[k2]) / 2, (py_[k] + py_[k2]) / 2); }
+    c.closePath();
+    const v = clamp(dark ? ctone[i] : 1 - ctone[i], 0, 1);
+    c.fillStyle = ink(active ? 0.02 + 0.34 * Math.pow(v, 1.4) : 0.03);
+    c.fill();
+    c.strokeStyle = ink(0.5); c.stroke();
+    const nr = Math.sqrt(area / Math.PI) * 0.26;
+    if (nr > 1.5 * DPR) {
+      c.beginPath(); c.arc(cx * s, cy * s, nr, 0, TAU); c.strokeStyle = ink(0.35); c.stroke();
+    }
+  }
+
+  // tree
+  if (nn > 1) {
+    for (let i = 0; i < nn; i++) nw[i] = 1;
+    for (let i = nn - 1; i > 0; i--) nw[np[i]] += nw[i];
+    let alpha = 1, p = 0;
+    if (phase === 'dissolve') { p = clamp(phaseT / 7, 0, 1); alpha = 1 - p; }
+    const fall = p * p * 0.6, drift = p * p * 6;
+    const buckets = [[], [], [], [], [], []];
+    for (let i = 1; i < nn; i++) {
+      const lw = Math.min(3.2, 0.4 + 0.11 * Math.sqrt(nw[i]));
+      buckets[Math.min(5, Math.floor((lw - 0.4) / 0.5))].push(i);
+    }
+    c.strokeStyle = ink(0.92 * alpha);
+    for (let b = 0; b < 6; b++) {
+      const list = buckets[b]; if (!list.length) continue;
+      c.lineWidth = (0.4 + 0.5 * b + 0.25) * DPR;
+      c.beginPath();
+      for (const i of list) {
+        const q = np[i];
+        c.moveTo((nx[q] + Math.sin(nf[q] * 0.7) * drift) * s, (ny[q] + nf[q] * fall) * s);
+        c.lineTo((nx[i] + Math.sin(nf[i] * 0.7) * drift) * s, (ny[i] + nf[i] * fall) * s);
+      }
+      c.stroke();
+    }
+    // buds at the tips
+    c.lineWidth = 0.9 * DPR; c.strokeStyle = ink(0.9 * alpha); c.fillStyle = PLATE;
+    c.beginPath();
+    for (let i = 1; i < nn; i++) {
+      if (nc[i] !== 0) continue;
+      const X = (nx[i] + Math.sin(nf[i] * 0.7) * drift) * s, Y = (ny[i] + nf[i] * fall) * s, r = 1.9 * DPR;
+      c.moveTo(X + r, Y); c.arc(X, Y, r, 0, TAU);
+    }
+    c.fill(); c.stroke();
+    // nodes touched by the reading head
+    if (phase !== 'dissolve') {
+      const hx = sweep * GW; c.fillStyle = ink(0.9);
+      c.beginPath();
+      for (let i = 1; i < nn; i++) {
+        if (Math.abs(nx[i] - hx) < 1.2) { const X = nx[i] * s, Y = ny[i] * s; c.moveTo(X + 2.6 * DPR, Y); c.arc(X, Y, 2.6 * DPR, 0, TAU); }
+      }
+      c.fill();
+    }
+  }
+
+  // reading head
+  const x = sweep * W, bw = 70 * DPR;
+  const gr = c.createLinearGradient(x - bw, 0, x, 0);
+  gr.addColorStop(0, ink(0)); gr.addColorStop(1, ink(0.06));
+  c.fillStyle = gr; c.fillRect(Math.max(0, x - bw), 0, Math.min(bw, x), H);
+  c.strokeStyle = ink(0.5); c.lineWidth = DPR;
+  c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke();
+}
+
+/* ---------- layout, theme, ui ---------- */
+function resize() {
+  for (const cv of [base, over, gen]) {
+    const r = cv.parentElement.getBoundingClientRect();
+    const w = Math.max(2, Math.round(r.width * DPR)), h = Math.max(2, Math.round(r.height * DPR));
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  }
+}
+new ResizeObserver(resize).observe(base.parentElement);
+window.addEventListener('resize', resize);
+
+function applyTheme() {
+  document.documentElement.dataset.theme = S.theme;
+  const cs = getComputedStyle(document.documentElement);
+  PLATE = cs.getPropertyValue('--plate').trim() || '#f8f7f3';
+  INKRGB = S.theme === 'dark' ? '236,235,230' : '18,18,18';
+}
+function toggleTheme() { S.theme = S.theme === 'dark' ? 'light' : 'dark'; applyTheme(); }
+function toggleHold() { S.hold = !S.hold; $('bHold').innerHTML = S.hold ? bi('release', '释放') : bi('hold', '定格'); }
+function toggleSound() { audioInit(); setSound(!S.sound); }
+
+function savePlate() {
+  const W = base.width, H = base.height, m = Math.round(W * 0.06), capH = Math.round(H * 0.22);
+  const out = document.createElement('canvas'); out.width = W * 2 + m * 3; out.height = H + m * 2 + capH;
+  const c = out.getContext('2d'), cs = getComputedStyle(document.documentElement);
+  c.fillStyle = cs.getPropertyValue('--wall').trim(); c.fillRect(0, 0, out.width, out.height);
+  c.save(); if ('filter' in c) c.filter = 'grayscale(1) contrast(1.18) brightness(.96)';
+  c.drawImage(base, m, m); c.restore();
+  c.globalCompositeOperation = 'difference'; c.drawImage(over, m, m); c.globalCompositeOperation = 'source-over';
+  c.drawImage(gen, m * 2 + W, m);
+  c.fillStyle = cs.getPropertyValue('--ink').trim(); c.textAlign = 'center'; c.textBaseline = 'top';
+  const fs = Math.round(W * 0.036); c.font = `italic ${fs}px 'Cormorant Garamond', ${CJK}, Georgia, serif`;
+  const words = (verseCur || '').split(' '); let line = '', y = m + H + Math.round(fs * 1.2);
+  for (const w of words) {
+    const t = line ? line + ' ' + w : w;
+    if (c.measureText(t).width > out.width * 0.7 && line) { c.fillText(line, out.width / 2, y); y += fs * 1.25; line = w; } else line = t;
+  }
+  if (line) c.fillText(line, out.width / 2, y);
+  if (verseCurZh) {
+    c.font = `${Math.round(fs * 0.82)}px ${CJK}, serif`; c.globalAlpha = 0.7;
+    c.fillText(verseCurZh, out.width / 2, y + fs * 1.45); c.globalAlpha = 1;
+  }
+  out.toBlob(b => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `abscission-${Date.now()}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+  }, 'image/png');
+}
+
+/* ---------- entry ---------- */
+function enter() {
+  if (S.started) return;
+  S.started = true;
+  $('start').classList.add('gone'); setTimeout(() => $('start').style.display = 'none', 1300);
+  $('app').hidden = false;
+  setGrid(); applyTheme(); camLabel();
+  audioInit(); setSound(true);
+  onState();
+}
+function note(msg) { $('note').textContent = msg; }
+
+$('goCam').onclick = async () => {
+  note('Asking for the camera… 正在请求相机权限…');
+  try { await startCam(); enter(); }
+  catch (e) { note(`The camera could not be opened (${e.message || e.name}). Check the browser's permission, or open a photograph instead. 无法打开相机，请检查浏览器权限，或改为打开一张照片。`); }
+};
+$('goImg').onclick = () => $('file').click();
+$('goDemo').onclick = () => { kind = 'demo'; drawSample(0); enter(); };
+$('bImg').onclick = () => $('file').click();
+$('file').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { await loadImage(f); S.started ? setGrid() : enter(); } catch (err) { note(err.message); }
+  e.target.value = '';
+};
+$('bCam').onclick = async () => {
+  try {
+    if (kind !== 'cam') { await startCam(); setGrid(); }
+    else if (devices.length > 1) { devIdx = (devIdx + 1) % devices.length; await startCam(devices[devIdx].deviceId); setGrid(); }
+  } catch (e) { $('bCam').innerHTML = bi('camera unavailable', '相机不可用'); }
+};
+$('bSnd').onclick = toggleSound;
+$('bHold').onclick = toggleHold;
+$('bInv').onclick = toggleTheme;
+$('bSave').onclick = savePlate;
+window.addEventListener('keydown', e => {
+  if (!S.started || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === ' ') { e.preventDefault(); toggleHold(); }
+  else if (k === 'i') toggleTheme();
+  else if (k === 'm') toggleSound();
+  else if (k === 's') savePlate();
+});
+
+/* ---------- main loop ---------- */
+let last = performance.now(), lastAn = 0, frameNo = 0, lastMetric = 0, lastPad = 0;
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (!S.started) return;
+  S.t += dt; frameNo++;
+
+  const [w, h] = srcSize();
+  if (w && h && Math.abs(w / h - lastAR) > 0.01) setGrid();
+  if (kind === 'demo' && frameNo % 8 === 0) drawSample(S.t);
+
+  if (!S.hold && srcReady()) {
+    if (now - lastAn > 32) { analyse(); lastAn = now; }
+    drawBase();
+  }
+  updateTree(dt); updateCells(dt); updateSweep(dt); updateVerse();
+  drawOver(); drawGen();
+
+  if (S.t - lastPad > 1) { lastPad = S.t; setPad(); }
+  if (S.t - lastMetric > 0.25) {
+    lastMetric = S.t;
+    $('mL').textContent = active ? `${PIG[state]} · tone 色调 ${tone.toFixed(2)} · relief 起伏 ${relief.toFixed(2)}` : PIG.bare;
+    $('mR').textContent = `${NC} cells 细胞 · ${(nn - 1).toLocaleString()} branches 分枝 · cycle 循环 ${cycleNo}`;
+  }
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
