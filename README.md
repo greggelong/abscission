@@ -1,22 +1,22 @@
 # Abscission · 离
 
-*A study in leaving. 一场关于离去的研究。*
+_A study in leaving. 一场关于离去的研究。_
 
 Abscission is a single-file web piece for autumn. Place a fallen leaf under a webcam microscope and the page turns what the lens sees into drawing and sound: veins become branching lines, cells drift into organic forms, and a slow reading head plays the leaf as music while short lines of poetry follow its colour from green to brown.
 
 It runs entirely in the browser. No server, no build step, no dependencies, and nothing is uploaded.
 
-> *Brown is the colour of having given everything back.*
+> _Brown is the colour of having given everything back._
 
 ---
 
 ## The concept
 
-*Abscission* is the botanical term for the way a plant lets go of a leaf. The tree seals the connection, the green drains away, and the leaf falls. It is one of the quietest and most deliberate acts in nature, and it is also a decent description of a lot of human life.
+_Abscission_ is the botanical term for the way a plant lets go of a leaf. The tree seals the connection, the green drains away, and the leaf falls. It is one of the quietest and most deliberate acts in nature, and it is also a decent description of a lot of human life.
 
 The piece is built around that idea:
 
-- **Plate I — Observation** is the leaf as it is right now, in black and white, annotated like a botanical plate.
+- **Plate I — Observation** is the leaf as it is right now, annotated like a botanical plate. Its colour is muted by default so the leaf's pigment stays visible without breaking the gallery look; it can be set to true colour or pure black and white.
 - **Plate II — Reconstruction** is the leaf as it is remembered. A drawing grows from what the lens found, rests, then comes apart and falls. Then it starts again from whatever is under the lens, so every cycle is a new reading.
 - **The sound** is made from the leaf itself. Nothing is pre-recorded.
 - **The words** change with the leaf's pigment: chlorophyll, carotene, anthocyanin, tannin. They are about transition, ending and return.
@@ -42,12 +42,13 @@ If you have a laptop webcam and a USB microscope, the camera is probably the lap
 
 ### Controls
 
-| Key | Action |
-| --- | --- |
-| `space` | hold the current frame (useful for adjusting focus) |
-| `i` | invert: black wall, white ink |
-| `m` | sound on / off |
-| `s` | keep a plate: saves a PNG of both plates with the current verse |
+| Key     | Action                                                          |
+| ------- | --------------------------------------------------------------- |
+| `space` | hold the current frame (useful for adjusting focus)             |
+| `c`     | colour of both plates: muted (default) → true → mono            |
+| `i`     | invert: black wall, white ink                                   |
+| `m`     | sound on / off                                                  |
+| `s`     | keep a plate: saves a PNG of both plates with the current verse |
 
 The same actions are in the header. Sound starts on, but browsers only allow audio after a click, so it begins once you choose a source.
 
@@ -65,9 +66,11 @@ The same actions are in the header. Sound starts on, but browsers only allow aud
 Everything is in `abscission.html`, in one `<script>` block, roughly in this order.
 
 ### 1. Sources
+
 The page can read from a camera (`getUserMedia`), a still photograph, or the built-in sample leaf (`drawSample`). Whichever it is, each frame is drawn into a small hidden canvas (192 px wide, `GW`) and all analysis is done on that grid, which keeps it fast and also helps smooth sensor noise.
 
 ### 2. Analysis (`analyse`)
+
 - **Tone:** grayscale, lightly smoothed over time.
 - **Ridges:** the difference between a small and a large box blur (`|blur(1) − blur(4)|`). Thin bright or dark lines, such as veins, stand out. Points above `mean + 1 σ` count as ridges (`rT`). A mean below `0.007` means no leaf is in view.
 - **Pigment:** pixels are classified by hue into green, yellow, red/orange and brown. The dominant class (debounced for two seconds) sets the "state" used for poetry and scale.
@@ -75,18 +78,22 @@ The page can read from a camera (`getUserMedia`), a still photograph, or the bui
 - **Annotations:** up to seven local ridge maxima get a ring, a leader line, a roman numeral and the local vein angle, calculated from the gradient.
 
 ### 3. Plate II — cells (`cell`, `drawGen`)
+
 - 96 seed points drift slowly and are re-targeted one at a time, 70% of the time toward strong ridges, so cells get smaller along the veins.
 - Each cell is a **Voronoi** region computed by clipping against the other seeds' bisectors (half-plane clipping), then shrunk and rounded with quadratic curves so the walls look organic. A nucleus ring is drawn when the cell is big enough.
-- Fill darkness follows the tone under each seed.
+- Fill follows the leaf under each seed: in muted or true colour mode each cell samples the live image colour (a small average, smoothed over time) and is muted by the same amount as Plate I; in mono mode, fill darkness follows the tone instead.
 
 ### 4. Plate II — branching (`growStep`, `updateTree`)
+
 The branching structure uses **space colonisation** (Runions et al., 2007):
+
 - Attractor points (up to 240) are sampled from the ridge map.
 - The tree starts at the bottom centre and, 14 times a second, each node is pulled toward the attractors nearest to it, growing new nodes and removing attractors it reaches.
 - Line width follows a pipe model (thickness from the size of the subtree behind it).
 - The life cycle has four phases: `wait` → `grow` → `rest` (7 s) → `dissolve` (7 s, the branches fray and fall) → reset from the current frame.
 
 ### 5. Sound (Web Audio)
+
 - **Scale and mode:** root is D. The mode comes from the leaf's state: major pentatonic for green, lydian pentatonic for yellow, minor pentatonic for red, hirajoshi for brown, open fifths when no leaf is present.
 - **Reading head:** a vertical line sweeps both plates every 18 seconds (`SWEEP_T`). For each column it crosses, the strongest ridge may trigger a soft bell-like note. Vertical position sets pitch, quantised to the scale over three octaves; horizontal position sets stereo pan; ridge strength sets loudness.
 - **Pad:** four detuned oscillators through a low-pass filter with a slow LFO. Its chord follows the current mode, and its brightness follows the tone of the image.
@@ -94,9 +101,11 @@ The branching structure uses **space colonisation** (Runions et al., 2007):
 - **Space:** a generated convolution reverb and a compressor sit on the master output.
 
 ### 6. Poetry (`VERSES`)
+
 Short original lines in English and Chinese, grouped by pigment state, shown one at a time with a slow fade.
 
 ### 7. Look
+
 Warm off-white wall, hairline frames, serif type, no icons or gradients. The overlay on Plate I uses a `difference` blend so white lines stay legible on any grey. Text is bilingual: the Chinese is set slightly smaller and lighter under or beside the English.
 
 ---
@@ -105,18 +114,18 @@ Warm off-white wall, hairline frames, serif type, no icons or gradients. The ove
 
 All the important constants are near the top of their sections.
 
-| Constant | Where | What it does |
-| --- | --- | --- |
-| `GW` | grid | analysis resolution (higher is more detail, slower) |
-| `SWEEP_T` | scan line | seconds per sweep; larger is slower and calmer |
-| `S.t - lastNoteT < 0.3` | `readColumn` | minimum time between scan notes |
-| `NC` | cells | number of cells |
-| `MAXN`, `STEP`, `KILL2` | tree | node limit, growth step, kill distance |
-| `dt * 14` | `updateTree` | growth steps per second |
-| `phaseT > 7` | `updateTree` | rest and dissolve durations |
-| `active = m > 0.007` | `analyse` | "is there a leaf" threshold; raise it for noisy cameras |
-| `MODES` | sound | scales per state; edit to change the music |
-| `VERSES` | poetry | add or rewrite lines |
+| Constant                | Where        | What it does                                            |
+| ----------------------- | ------------ | ------------------------------------------------------- |
+| `GW`                    | grid         | analysis resolution (higher is more detail, slower)     |
+| `SWEEP_T`               | scan line    | seconds per sweep; larger is slower and calmer          |
+| `S.t - lastNoteT < 0.3` | `readColumn` | minimum time between scan notes                         |
+| `NC`                    | cells        | number of cells                                         |
+| `MAXN`, `STEP`, `KILL2` | tree         | node limit, growth step, kill distance                  |
+| `dt * 14`               | `updateTree` | growth steps per second                                 |
+| `phaseT > 7`            | `updateTree` | rest and dissolve durations                             |
+| `active = m > 0.007`    | `analyse`    | "is there a leaf" threshold; raise it for noisy cameras |
+| `MODES`                 | sound        | scales per state; edit to change the music              |
+| `VERSES`                | poetry       | add or rewrite lines                                    |
 
 ---
 
@@ -128,13 +137,11 @@ All the important constants are near the top of their sections.
 
 ## Credits
 
-- Branching: space colonisation, Runions, Lane, Prusinkiewicz, *Modeling Trees with a Space Colonization Algorithm* (2007).
+- Branching: space colonisation, Runions, Lane, Prusinkiewicz, _Modeling Trees with a Space Colonization Algorithm_ (2007).
 - Contours: marching squares. Cells: Voronoi diagram via half-plane clipping.
 - Typefaces: Cormorant Garamond, Noto Serif SC (SIL Open Font License).
 
 ## License
-
-Choose a license for your repo (MIT is a common default) and add a `LICENSE` file.
 
 ---
 
@@ -148,7 +155,7 @@ Choose a license for your repo (MIT is a common default) and add a `LICENSE` fil
 
 ## 概念
 
-*Abscission*（离层 / 落叶）是植物学术语，指植物主动放下一片叶子的过程：树封住连接，绿色退去，叶子落下。这是自然里最安静、也最有意为之的行为之一。
+_Abscission_（离层 / 落叶）是植物学术语，指植物主动放下一片叶子的过程：树封住连接，绿色退去，叶子落下。这是自然里最安静、也最有意为之的行为之一。
 
 - **图一 · 观察**：此刻的叶片，黑白呈现，像植物图鉴一样做了标注。
 - **图二 · 重构**：被记忆的叶片。图形从镜头所见中生长，停留，然后解体、坠落；之后再根据镜头下的新画面重新开始，每一轮都是新的读取。
@@ -167,7 +174,7 @@ Choose a license for your repo (MIT is a common default) and add a `LICENSE` fil
 
 如果你同时有笔记本摄像头和 USB 显微镜，默认可能是笔记本摄像头，点击页头的相机文字即可切换设备。
 
-**快捷键**：`空格` 定格画面；`i` 反色；`m` 开关声音；`s` 保存当前画面为 PNG。
+**快捷键**：`空格` 定格画面；`c` 切换两幅画面的色彩（淡彩 / 原色 / 黑白）；`i` 反色；`m` 开关声音；`s` 保存当前画面为 PNG。
 
 ## 代码结构（简述）
 
@@ -181,5 +188,3 @@ Choose a license for your repo (MIT is a common default) and add a `LICENSE` fil
 可调参数（`GW`、`SWEEP_T`、`NC`、`MAXN`、`MODES`、`VERSES` 等）见上方英文表格。
 
 ## 许可
-
-请为你的仓库选择一个许可证（常见的是 MIT），并添加 `LICENSE` 文件。
